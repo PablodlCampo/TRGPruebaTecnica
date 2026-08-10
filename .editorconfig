@@ -127,6 +127,7 @@ dotnet_analyzer_diagnostic.severity = error
 dotnet_diagnostic.IDE0022.severity = silent
 dotnet_diagnostic.IDE0058.severity = none
 dotnet_diagnostic.IDE0130.severity = silent
+dotnet_diagnostic.IDE0046.severity = silent
 #Code Analysis 
 dotnet_diagnostic.CA1040.severity = none
 dotnet_diagnostic.CA1303.severity = none
