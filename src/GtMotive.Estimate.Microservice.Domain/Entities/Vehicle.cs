@@ -10,11 +10,6 @@ namespace GtMotive.Estimate.Microservice.Domain.Entities
     {
         private const int MaximumAgeInYears = 5;
 
-        private Vehicle()
-        {
-            // Required by ORM.
-        }
-
         private Vehicle(
             Guid id,
             string registrationNumber,
@@ -83,13 +78,10 @@ namespace GtMotive.Estimate.Microservice.Domain.Entities
                     nameof(manufacturingDate));
             }
 
-#pragma warning disable IDE0046
-
             if (manufacturingDate < currentDate.AddYears(-MaximumAgeInYears))
             {
                 throw new DomainException("Vehicle cannot be older than 5 years.");
             }
-#pragma warning restore IDE0046
 
             return new Vehicle(
                 id,

@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 
-namespace GtMotive.Estimate.Microservice.ApplicationCore.UseCases
+namespace GtMotive.Estimate.Microservice.ApplicationCore.UseCases.Interfaces
 {
     /// <summary>
     /// Interface for the handler of an use case.

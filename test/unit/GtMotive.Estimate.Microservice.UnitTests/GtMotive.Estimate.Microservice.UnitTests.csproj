@@ -4,13 +4,8 @@
     <TargetFramework>net9.0</TargetFramework>
 
     <IsPackable>false</IsPackable>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
-
-  <ItemGroup>
-    <Compile Remove="Domain\**" />
-    <EmbeddedResource Remove="Domain\**" />
-    <None Remove="Domain\**" />
-  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Moq" Version="4.16.0" />
@@ -24,7 +19,6 @@
 
   <ItemGroup>
     <Folder Include="Api\" />
-    <Folder Include="ApplicationCore\" />
     <Folder Include="Infrastructure\" />
   </ItemGroup>
 

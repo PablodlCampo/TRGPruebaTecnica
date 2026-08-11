@@ -1,4 +1,4 @@
-﻿namespace GtMotive.Estimate.Microservice.ApplicationCore.UseCases
+﻿namespace GtMotive.Estimate.Microservice.ApplicationCore.UseCases.Interfaces
 {
     /// <summary>
     /// Output Message interface marker.
