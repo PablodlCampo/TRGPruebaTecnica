@@ -17,6 +17,16 @@ namespace GtMotive.Estimate.Microservice.Domain.Interfaces
         Task AddAsync(Rental rental);
 
         /// <summary>
+        /// Retrieves a rental by its unique identifier.
+        /// </summary>
+        /// <param name="id">The unique identifier of the rental.</param>
+        /// <returns>
+        /// A task that represents the asynchronous operation. The task result contains
+        /// the Rental if found; otherwise, <see langword="null"/>.
+        /// </returns>
+        Task<Rental> GetByIdAsync(Guid id);
+
+        /// <summary>
         /// Retrieves the active rental associated with a customer.
         /// </summary>
         /// <param name="customerId">The unique identifier of the customer.</param>
