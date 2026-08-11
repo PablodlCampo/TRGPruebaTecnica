@@ -41,16 +41,21 @@ namespace GtMotive.Estimate.Microservice.ApplicationCore.UseCases
     /// <param name="rentalRepository">
     /// Repository used to retrieve and create rentals.
     /// </param>
+    /// <param name="unitOfWork">
+    /// Unit of work used to commit changes to the database.
+    /// </param>
     /// <param name="outputPort">
     /// Output port used to return the result of the use case.
     /// </param>
     public class RentVehicleUseCase(
         IVehicleRepository vehicleRepository,
         IRentalRepository rentalRepository,
+        IUnitOfWork unitOfWork,
         IOutputPortStandard<RentVehicleOutput> outputPort) : IUseCase<RentVehicleInput>
     {
         private readonly IVehicleRepository _vehicleRepository = vehicleRepository;
         private readonly IRentalRepository _rentalRepository = rentalRepository;
+        private readonly IUnitOfWork _unitOfWork = unitOfWork;
         private readonly IOutputPortStandard<RentVehicleOutput> _outputPort = outputPort;
 
         /// <summary>
@@ -78,14 +83,11 @@ namespace GtMotive.Estimate.Microservice.ApplicationCore.UseCases
             }
 
             // Retrieve the requested vehicle.
-            var vehicle = await _vehicleRepository.GetByIdAsync(input.VehicleId);
-            if (vehicle == null || vehicle.Status == Domain.Enums.VehicleStatus.Rented)
-            {
-                throw new DomainException("El vehículo no está disponible para alquilar.");
-            }
+            var vehicle = await _vehicleRepository.GetByIdAsync(input.VehicleId)
+                ?? throw new DomainException("El vehículo no existe");
 
-            // Mark the vehicle as rented and create the rental record.
             vehicle.Rent();
+
             var rental = Rental.Create(
                 Guid.NewGuid(),
                 vehicle.Id,
@@ -94,6 +96,7 @@ namespace GtMotive.Estimate.Microservice.ApplicationCore.UseCases
 
             await _vehicleRepository.UpdateAsync(vehicle);
             await _rentalRepository.AddAsync(rental);
+            await _unitOfWork.Save();
 
             _outputPort.StandardHandle(
                 new RentVehicleOutput(
