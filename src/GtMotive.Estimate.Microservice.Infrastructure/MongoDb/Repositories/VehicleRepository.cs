@@ -1,4 +1,5 @@
-﻿using System;
+﻿```csharp
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -6,8 +7,6 @@ using GtMotive.Estimate.Microservice.Domain.Entities;
 using GtMotive.Estimate.Microservice.Domain.Enums;
 using GtMotive.Estimate.Microservice.Domain.Interfaces;
 using GtMotive.Estimate.Microservice.Infrastructure.MongoDb.Documents;
-using GtMotive.Estimate.Microservice.Infrastructure.MongoDb.Settings;
-using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 
 namespace GtMotive.Estimate.Microservice.Infrastructure.MongoDb.Repositories
@@ -23,22 +22,14 @@ namespace GtMotive.Estimate.Microservice.Infrastructure.MongoDb.Repositories
         /// Initializes a new instance of the <see cref="VehicleRepository"/> class.
         /// </summary>
         /// <param name="mongoService">
-        /// Service used to access MongoDB.
+        /// Service used to access the MongoDB database.
         /// </param>
-        /// <param name="options">
-        /// MongoDB configuration options.
-        /// </param>
-        public VehicleRepository(
-            MongoService mongoService,
-            IOptions<MongoDbSettings> options)
+        public VehicleRepository(MongoService mongoService)
         {
             ArgumentNullException.ThrowIfNull(mongoService);
-            ArgumentNullException.ThrowIfNull(options);
 
-            var database = mongoService.MongoClient.GetDatabase(
-                options.Value.MongoDbDatabaseName);
-
-            _vehicles = database.GetCollection<VehicleDocument>("Vehicles");
+            _vehicles = mongoService.Database
+                .GetCollection<VehicleDocument>("Vehicles");
         }
 
         /// <summary>
@@ -50,7 +41,9 @@ namespace GtMotive.Estimate.Microservice.Infrastructure.MongoDb.Repositories
         {
             ArgumentNullException.ThrowIfNull(vehicle);
 
-            await _vehicles.InsertOneAsync(ToDocument(vehicle));
+            var document = ToDocument(vehicle);
+
+            await _vehicles.InsertOneAsync(document);
         }
 
         /// <summary>
@@ -97,11 +90,18 @@ namespace GtMotive.Estimate.Microservice.Infrastructure.MongoDb.Repositories
         {
             ArgumentNullException.ThrowIfNull(vehicle);
 
+            var document = ToDocument(vehicle);
+
             await _vehicles.ReplaceOneAsync(
                 existingVehicle => existingVehicle.Id == vehicle.Id,
-                ToDocument(vehicle));
+                document);
         }
 
+        /// <summary>
+        /// Converts a domain vehicle into its MongoDB persistence representation.
+        /// </summary>
+        /// <param name="vehicle">The domain vehicle to convert.</param>
+        /// <returns>A MongoDB document representing the vehicle.</returns>
         private static VehicleDocument ToDocument(Vehicle vehicle)
         {
             return new VehicleDocument
@@ -113,6 +113,11 @@ namespace GtMotive.Estimate.Microservice.Infrastructure.MongoDb.Repositories
             };
         }
 
+        /// <summary>
+        /// Converts a MongoDB vehicle document into its domain representation.
+        /// </summary>
+        /// <param name="document">The MongoDB document to convert.</param>
+        /// <returns>A vehicle reconstructed from the persisted state.</returns>
         private static Vehicle ToDomain(VehicleDocument document)
         {
             return Vehicle.Rehydrate(

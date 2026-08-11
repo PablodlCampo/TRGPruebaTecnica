@@ -4,15 +4,32 @@ using MongoDB.Driver;
 
 namespace GtMotive.Estimate.Microservice.Infrastructure.MongoDb
 {
-    public class MongoService
+    /// <summary>
+    /// Provides access to the MongoDB client and database used by the application.
+    /// </summary>
+    public sealed class MongoService
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MongoService"/> class.
+        /// </summary>
+        /// <param name="options">
+        /// Configuration options containing the MongoDB connection string
+        /// and database name.
+        /// </param>
         public MongoService(IOptions<MongoDbSettings> options)
         {
             MongoClient = new MongoClient(options.Value.ConnectionString);
-
-            // Add call to RegisterBsonClasses() method.
+            Database = MongoClient.GetDatabase(options.Value.MongoDbDatabaseName);
         }
 
+        /// <summary>
+        /// Gets the MongoDB client.
+        /// </summary>
         public MongoClient MongoClient { get; }
+
+        /// <summary>
+        /// Gets the MongoDB database used by the application.
+        /// </summary>
+        public IMongoDatabase Database { get; }
     }
 }

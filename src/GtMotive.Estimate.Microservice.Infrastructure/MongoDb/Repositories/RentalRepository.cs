@@ -2,8 +2,7 @@
 using System.Threading.Tasks;
 using GtMotive.Estimate.Microservice.Domain.Entities;
 using GtMotive.Estimate.Microservice.Domain.Interfaces;
-using GtMotive.Estimate.Microservice.Infrastructure.MongoDb.Settings;
-using Microsoft.Extensions.Options;
+using GtMotive.Estimate.Microservice.Infrastructure.MongoDb.Documents;
 using MongoDB.Driver;
 
 namespace GtMotive.Estimate.Microservice.Infrastructure.MongoDb.Repositories
@@ -13,28 +12,20 @@ namespace GtMotive.Estimate.Microservice.Infrastructure.MongoDb.Repositories
     /// </summary>
     public sealed class RentalRepository : IRentalRepository
     {
-        private readonly IMongoCollection<Rental> _rentals;
+        private readonly IMongoCollection<RentalDocument> _rentals;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="RentalRepository"/> class.
         /// </summary>
         /// <param name="mongoService">
-        /// Service used to create the MongoDB client.
+        /// Service used to access the MongoDB database.
         /// </param>
-        /// <param name="options">
-        /// MongoDB configuration options.
-        /// </param>
-        public RentalRepository(
-            MongoService mongoService,
-            IOptions<MongoDbSettings> options)
+        public RentalRepository(MongoService mongoService)
         {
             ArgumentNullException.ThrowIfNull(mongoService);
-            ArgumentNullException.ThrowIfNull(options);
 
-            var database = mongoService.MongoClient.GetDatabase(
-                options.Value.MongoDbDatabaseName);
-
-            _rentals = database.GetCollection<Rental>("Rentals");
+            _rentals = mongoService.Database
+                .GetCollection<RentalDocument>("Rentals");
         }
 
         /// <summary>
@@ -46,7 +37,9 @@ namespace GtMotive.Estimate.Microservice.Infrastructure.MongoDb.Repositories
         {
             ArgumentNullException.ThrowIfNull(rental);
 
-            await _rentals.InsertOneAsync(rental);
+            var document = ToDocument(rental);
+
+            await _rentals.InsertOneAsync(document);
         }
 
         /// <summary>
@@ -59,9 +52,13 @@ namespace GtMotive.Estimate.Microservice.Infrastructure.MongoDb.Repositories
         /// </returns>
         public async Task<Rental> GetByIdAsync(Guid id)
         {
-            return await _rentals
+            var document = await _rentals
                 .Find(rental => rental.Id == id)
                 .FirstOrDefaultAsync();
+
+            return document == null
+                ? null
+                : ToDomain(document);
         }
 
         /// <summary>
@@ -77,11 +74,15 @@ namespace GtMotive.Estimate.Microservice.Infrastructure.MongoDb.Repositories
         /// </returns>
         public async Task<Rental> GetActiveRentalByCustomerIdAsync(Guid customerId)
         {
-            return await _rentals
+            var document = await _rentals
                 .Find(rental =>
                     rental.CustomerId == customerId &&
                     rental.ReturnedAt == null)
                 .FirstOrDefaultAsync();
+
+            return document == null
+                ? null
+                : ToDomain(document);
         }
 
         /// <summary>
@@ -93,9 +94,43 @@ namespace GtMotive.Estimate.Microservice.Infrastructure.MongoDb.Repositories
         {
             ArgumentNullException.ThrowIfNull(rental);
 
+            var document = ToDocument(rental);
+
             await _rentals.ReplaceOneAsync(
                 existingRental => existingRental.Id == rental.Id,
-                rental);
+                document);
+        }
+
+        /// <summary>
+        /// Converts a domain rental into its MongoDB persistence representation.
+        /// </summary>
+        /// <param name="rental">The domain rental to convert.</param>
+        /// <returns>A MongoDB document representing the rental.</returns>
+        private static RentalDocument ToDocument(Rental rental)
+        {
+            return new RentalDocument
+            {
+                Id = rental.Id,
+                VehicleId = rental.VehicleId,
+                CustomerId = rental.CustomerId,
+                RentedAt = rental.RentedAt,
+                ReturnedAt = rental.ReturnedAt
+            };
+        }
+
+        /// <summary>
+        /// Converts a MongoDB rental document into its domain representation.
+        /// </summary>
+        /// <param name="document">The MongoDB document to convert.</param>
+        /// <returns>A rental reconstructed from the persisted state.</returns>
+        private static Rental ToDomain(RentalDocument document)
+        {
+            return Rental.Rehydrate(
+                document.Id,
+                document.VehicleId,
+                document.CustomerId,
+                document.RentedAt,
+                document.ReturnedAt);
         }
     }
 }
