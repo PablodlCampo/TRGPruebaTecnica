@@ -44,6 +44,9 @@ namespace GtMotive.Estimate.Microservice.ApplicationCore.UseCases
     /// <param name="unitOfWork">
     /// Unit of work used to commit changes to the database.
     /// </param>
+    /// <param name="clock">
+    /// Clock used to retrieve the current date and time.
+    /// </param>
     /// <param name="outputPort">
     /// Output port used to return the result of the use case.
     /// </param>
@@ -51,11 +54,13 @@ namespace GtMotive.Estimate.Microservice.ApplicationCore.UseCases
         IVehicleRepository vehicleRepository,
         IRentalRepository rentalRepository,
         IUnitOfWork unitOfWork,
+        IClock clock,
         IOutputPortStandard<RentVehicleOutput> outputPort) : IUseCase<RentVehicleInput>
     {
         private readonly IVehicleRepository _vehicleRepository = vehicleRepository;
         private readonly IRentalRepository _rentalRepository = rentalRepository;
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
+        private readonly IClock _clock = clock;
         private readonly IOutputPortStandard<RentVehicleOutput> _outputPort = outputPort;
 
         /// <summary>
@@ -79,12 +84,12 @@ namespace GtMotive.Estimate.Microservice.ApplicationCore.UseCases
             var activeRental = await _rentalRepository.GetActiveRentalByCustomerIdAsync(input.CustomerId);
             if (activeRental != null)
             {
-                throw new DomainException("El cliente ya tiene un vehículo alquilado actualmente.");
+                throw new DomainException("The customer already has an active rental.");
             }
 
             // Retrieve the requested vehicle.
             var vehicle = await _vehicleRepository.GetByIdAsync(input.VehicleId)
-                ?? throw new DomainException("El vehículo no existe");
+                ?? throw new DomainException("The requested vehicle does not exist.");
 
             vehicle.Rent();
 
@@ -92,7 +97,7 @@ namespace GtMotive.Estimate.Microservice.ApplicationCore.UseCases
                 Guid.NewGuid(),
                 vehicle.Id,
                 input.CustomerId,
-                DateTime.UtcNow);
+                _clock.UtcNow);
 
             await _vehicleRepository.UpdateAsync(vehicle);
             await _rentalRepository.AddAsync(rental);

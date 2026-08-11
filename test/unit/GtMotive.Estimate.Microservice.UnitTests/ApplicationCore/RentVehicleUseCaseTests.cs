@@ -32,6 +32,7 @@ namespace GtMotive.Estimate.Microservice.UnitTests.ApplicationCore
             var rentalRepository = new Mock<IRentalRepository>();
             var vehicleRepository = new Mock<IVehicleRepository>();
             var unitOfWork = new Mock<IUnitOfWork>();
+            var clock = new Mock<IClock>();
             var outputPort = new Mock<IOutputPortStandard<RentVehicleOutput>>();
 
             var existingRental = Rental.Create(
@@ -50,6 +51,7 @@ namespace GtMotive.Estimate.Microservice.UnitTests.ApplicationCore
                 vehicleRepository.Object,
                 rentalRepository.Object,
                 unitOfWork.Object,
+                clock.Object,
                 outputPort.Object);
 
             var input = new RentVehicleInput(
@@ -57,8 +59,12 @@ namespace GtMotive.Estimate.Microservice.UnitTests.ApplicationCore
                 customerId);
 
             // Act & Assert
-            await Assert.ThrowsAsync<DomainException>(
+            var exception = await Assert.ThrowsAsync<DomainException>(
                 () => useCase.Execute(input));
+
+            Assert.Equal(
+                "The customer already has an active rental.",
+                exception.Message);
 
             vehicleRepository.Verify(
                 repository => repository.GetByIdAsync(It.IsAny<Guid>()),
@@ -83,7 +89,12 @@ namespace GtMotive.Estimate.Microservice.UnitTests.ApplicationCore
             var rentalRepository = new Mock<IRentalRepository>();
             var vehicleRepository = new Mock<IVehicleRepository>();
             var unitOfWork = new Mock<IUnitOfWork>();
+            var clock = new Mock<IClock>();
             var outputPort = new Mock<IOutputPortStandard<RentVehicleOutput>>();
+
+            clock
+                .Setup(c => c.UtcNow)
+                .Returns(Now);
 
             rentalRepository
                 .Setup(repository =>
@@ -107,15 +118,20 @@ namespace GtMotive.Estimate.Microservice.UnitTests.ApplicationCore
                 vehicleRepository.Object,
                 rentalRepository.Object,
                 unitOfWork.Object,
+                clock.Object,
                 outputPort.Object);
 
             var input = new RentVehicleInput(
-                customerId,
-                vehicleId);
+                vehicleId,
+                customerId);
 
             // Act & Assert
-            await Assert.ThrowsAsync<DomainException>(
+            var exception = await Assert.ThrowsAsync<DomainException>(
                 () => useCase.Execute(input));
+
+            Assert.Equal(
+                "Vehicle is not available for rent.",
+                exception.Message);
 
             rentalRepository.Verify(
                 repository => repository.AddAsync(It.IsAny<Rental>()),
@@ -140,7 +156,12 @@ namespace GtMotive.Estimate.Microservice.UnitTests.ApplicationCore
             var rentalRepository = new Mock<IRentalRepository>();
             var vehicleRepository = new Mock<IVehicleRepository>();
             var unitOfWork = new Mock<IUnitOfWork>();
+            var clock = new Mock<IClock>();
             var outputPort = new Mock<IOutputPortStandard<RentVehicleOutput>>();
+
+            clock
+                .Setup(c => c.UtcNow)
+                .Returns(Now);
 
             rentalRepository
                 .Setup(repository =>
@@ -162,11 +183,12 @@ namespace GtMotive.Estimate.Microservice.UnitTests.ApplicationCore
                 vehicleRepository.Object,
                 rentalRepository.Object,
                 unitOfWork.Object,
+                clock.Object,
                 outputPort.Object);
 
             var input = new RentVehicleInput(
-                customerId,
-                vehicleId);
+                vehicleId,
+                customerId);
 
             // Act
             await useCase.Execute(input);
@@ -208,7 +230,11 @@ namespace GtMotive.Estimate.Microservice.UnitTests.ApplicationCore
             var rentalRepository = new Mock<IRentalRepository>();
             var vehicleRepository = new Mock<IVehicleRepository>();
             var unitOfWork = new Mock<IUnitOfWork>();
+            var clock = new Mock<IClock>();
             var outputPort = new Mock<IOutputPortStandard<RentVehicleOutput>>();
+            clock
+                .Setup(c => c.UtcNow)
+                .Returns(Now);
 
             rentalRepository
                 .Setup(repository =>
@@ -224,11 +250,12 @@ namespace GtMotive.Estimate.Microservice.UnitTests.ApplicationCore
                 vehicleRepository.Object,
                 rentalRepository.Object,
                 unitOfWork.Object,
+                clock.Object,
                 outputPort.Object);
 
             var input = new RentVehicleInput(
-                customerId,
-                vehicleId);
+                vehicleId,
+                customerId);
 
             // Act & Assert
             await Assert.ThrowsAsync<DomainException>(
@@ -241,6 +268,67 @@ namespace GtMotive.Estimate.Microservice.UnitTests.ApplicationCore
             outputPort.Verify(
                 port => port.StandardHandle(It.IsAny<RentVehicleOutput>()),
                 Times.Never);
+        }
+
+        /// <summary>
+        /// Test to verify that the rental creation date is set correctly when a customer rents a vehicle.
+        /// </summary>
+        /// <returns>A task representing the asynchronous test operation.</returns>
+        [Fact]
+        public async Task ExecuteWhenCustomerAndVehicleAreValidCreatesRentalUsingClockDate()
+        {
+            // Arrange
+            var customerId = Guid.NewGuid();
+            var vehicleId = Guid.NewGuid();
+
+            var rentalRepository = new Mock<IRentalRepository>();
+            var vehicleRepository = new Mock<IVehicleRepository>();
+            var unitOfWork = new Mock<IUnitOfWork>();
+            var clock = new Mock<IClock>();
+            var outputPort = new Mock<IOutputPortStandard<RentVehicleOutput>>();
+
+            clock
+                .Setup(c => c.UtcNow)
+                .Returns(Now);
+
+            rentalRepository
+                .Setup(repository =>
+                    repository.GetActiveRentalByCustomerIdAsync(customerId))
+                .ReturnsAsync((Rental)null);
+
+            var vehicle = Vehicle.Create(
+                vehicleId,
+                "1234-ABC",
+                Now.AddYears(-1),
+                Now);
+
+            vehicleRepository
+                .Setup(repository =>
+                    repository.GetByIdAsync(vehicleId))
+                .ReturnsAsync(vehicle);
+
+            Rental createdRental = null;
+
+            rentalRepository
+                .Setup(repository => repository.AddAsync(It.IsAny<Rental>()))
+                .Callback<Rental>(rental => createdRental = rental);
+
+            var useCase = new RentVehicleUseCase(
+                vehicleRepository.Object,
+                rentalRepository.Object,
+                unitOfWork.Object,
+                clock.Object,
+                outputPort.Object);
+
+            var input = new RentVehicleInput(
+                vehicleId,
+                customerId);
+
+            // Act
+            await useCase.Execute(input);
+
+            // Assert
+            Assert.Equal(Now, createdRental.RentedAt);
         }
     }
 }
