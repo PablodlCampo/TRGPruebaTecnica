@@ -43,14 +43,5 @@ namespace GtMotive.Estimate.Microservice.Domain.Interfaces
         /// <param name="vehicle">The vehicle with the updated information.</param>
         /// <returns>A task that represents the asynchronous operation.</returns>
         Task UpdateAsync(Vehicle vehicle);
-
-        /// <summary>
-        /// Retrieves all vehicles registered in the system.
-        /// </summary>
-        /// <returns>
-        /// A task that represents the asynchronous operation.
-        /// The task result contains all registered vehicles.
-        /// </returns>
-        Task<IReadOnlyCollection<Vehicle>> GetAllAsync();
     }
 }

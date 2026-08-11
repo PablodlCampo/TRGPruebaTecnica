@@ -36,7 +36,7 @@ namespace GtMotive.Estimate.Microservice.ApplicationCore.UseCases
         /// </returns>
         public async Task Execute()
         {
-            var vehicles = await _vehicleRepository.GetAllAsync();
+            var vehicles = await _vehicleRepository.GetAvailableVehiclesAsync();
 
             var output = new ListVehiclesOutput(
                 [.. vehicles
