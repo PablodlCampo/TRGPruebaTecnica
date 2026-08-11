@@ -16,16 +16,19 @@ namespace GtMotive.Estimate.Microservice.Domain.Entities
         /// <param name="vehicleId">The identifier of the rented vehicle.</param>
         /// <param name="customerId">The identifier of the customer.</param>
         /// <param name="rentedAt">The date and time when the rental started.</param>
+        /// <param name="returnedAt">The date and time when the rental was returned at.</param>
         private Rental(
             Guid id,
             Guid vehicleId,
             Guid customerId,
-            DateTime rentedAt)
+            DateTime rentedAt,
+            DateTime? returnedAt)
         {
             Id = id;
             VehicleId = vehicleId;
             CustomerId = customerId;
             RentedAt = rentedAt;
+            ReturnedAt = returnedAt;
         }
 
         /// <summary>
@@ -104,7 +107,38 @@ namespace GtMotive.Estimate.Microservice.Domain.Entities
                 id,
                 vehicleId,
                 customerId,
-                rentedAt);
+                rentedAt,
+                null);
+        }
+
+        /// <summary>
+        /// Reconstructs a rental from its persisted state.
+        /// </summary>
+        /// <param name="id">The unique identifier of the rental.</param>
+        /// <param name="vehicleId">The identifier of the rented vehicle.</param>
+        /// <param name="customerId">The identifier of the customer.</param>
+        /// <param name="rentedAt">The date and time when the rental started.</param>
+        /// <param name="returnedAt">The date and time when the rental was returned at.</param>
+        /// <returns>A rental reconstructed from its persisted state.</returns>
+        /// <remarks>
+        /// This method is intended for use by the persistence layer when
+        /// reconstructing an existing rental. It restores the complete
+        /// persisted state without executing the rules used when creating
+        /// a new rental.
+        /// </remarks>
+        public static Rental Rehydrate(
+            Guid id,
+            Guid vehicleId,
+            Guid customerId,
+            DateTime rentedAt,
+            DateTime? returnedAt)
+        {
+            return new Rental(
+                id,
+                vehicleId,
+                customerId,
+                rentedAt,
+                returnedAt);
         }
 
         /// <summary>
