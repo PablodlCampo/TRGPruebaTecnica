@@ -13,12 +13,13 @@ namespace GtMotive.Estimate.Microservice.Domain.Entities
         private Vehicle(
             Guid id,
             string registrationNumber,
-            DateTime manufacturingDate)
+            DateTime manufacturingDate,
+            VehicleStatus status)
         {
             Id = id;
             RegistrationNumber = registrationNumber;
             ManufacturingDate = manufacturingDate;
-            Status = VehicleStatus.Available;
+            Status = status;
         }
 
         /// <summary>
@@ -86,7 +87,34 @@ namespace GtMotive.Estimate.Microservice.Domain.Entities
             return new Vehicle(
                 id,
                 registrationNumber,
-                manufacturingDate);
+                manufacturingDate,
+                VehicleStatus.Available);
+        }
+
+        /// <summary>
+        /// Reconstructs a vehicle from its persisted state.
+        /// </summary>
+        /// <param name="id">The unique identifier of the vehicle.</param>
+        /// <param name="registrationNumber">The vehicle registration number.</param>
+        /// <param name="manufacturingDate">The vehicle manufacturing date.</param>
+        /// <param name="status">The vehicle status.</param>
+        /// <returns>A vehicle reconstructed from its persisted state.</returns>
+        /// <remarks>
+        /// This method is intended for use by the persistence layer when
+        /// reconstructing an existing vehicle. Domain creation rules are not
+        /// re-evaluated because the state has already been persisted.
+        /// </remarks>
+        public static Vehicle Rehydrate(
+            Guid id,
+            string registrationNumber,
+            DateTime manufacturingDate,
+            VehicleStatus status)
+        {
+            return new Vehicle(
+                id,
+                registrationNumber,
+                manufacturingDate,
+                status);
         }
 
         /// <summary>
