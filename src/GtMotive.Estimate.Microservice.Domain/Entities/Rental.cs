@@ -86,6 +86,13 @@ namespace GtMotive.Estimate.Microservice.Domain.Entities
                     nameof(id));
             }
 
+            if (customerId == Guid.Empty)
+            {
+                throw new ArgumentException(
+                    "Customer id cannot be empty.",
+                    nameof(id));
+            }
+
             if (vehicleId == Guid.Empty)
             {
                 throw new ArgumentException(
