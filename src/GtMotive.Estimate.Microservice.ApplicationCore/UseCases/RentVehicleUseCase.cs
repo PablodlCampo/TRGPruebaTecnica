@@ -8,24 +8,6 @@ using GtMotive.Estimate.Microservice.Domain.Interfaces;
 namespace GtMotive.Estimate.Microservice.ApplicationCore.UseCases
 {
     /// <summary>
-    /// Represents the input data required to rent a vehicle.
-    /// </summary>
-    /// <param name="VehicleId">The unique identifier of the vehicle to rent.</param>
-    /// <param name="CustomerId">The unique identifier of the customer renting the vehicle.</param>
-    public record RentVehicleInput(Guid VehicleId, Guid CustomerId) : IUseCaseInput;
-
-    /// <summary>
-    /// Represents the output data returned after successfully renting a vehicle.
-    /// </summary>
-    /// <param name="RentalId">The unique identifier of the rental.</param>
-    /// <param name="VehicleId">The unique identifier of the rented vehicle.</param>
-    /// <param name="CustomerId">The unique identifier of the customer who rented the vehicle.</param>
-    public record RentVehicleOutput(
-        Guid RentalId,
-        Guid VehicleId,
-        Guid CustomerId) : IUseCaseOutput;
-
-    /// <summary>
     /// Use case responsible for renting an available vehicle to a customer.
     /// </summary>
     /// <remarks>
@@ -110,4 +92,22 @@ namespace GtMotive.Estimate.Microservice.ApplicationCore.UseCases
                     rental.CustomerId));
         }
     }
+
+    /// <summary>
+    /// Represents the input data required to rent a vehicle.
+    /// </summary>
+    /// <param name="VehicleId">The unique identifier of the vehicle to rent.</param>
+    /// <param name="CustomerId">The unique identifier of the customer renting the vehicle.</param>
+    public record RentVehicleInput(Guid VehicleId, Guid CustomerId) : IUseCaseInput;
+
+    /// <summary>
+    /// Represents the output data returned after successfully renting a vehicle.
+    /// </summary>
+    /// <param name="RentalId">The unique identifier of the rental.</param>
+    /// <param name="VehicleId">The unique identifier of the rented vehicle.</param>
+    /// <param name="CustomerId">The unique identifier of the customer who rented the vehicle.</param>
+    public record RentVehicleOutput(
+        Guid RentalId,
+        Guid VehicleId,
+        Guid CustomerId) : IUseCaseOutput;
 }
