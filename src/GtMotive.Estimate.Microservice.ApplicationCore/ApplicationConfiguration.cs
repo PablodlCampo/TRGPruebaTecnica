@@ -22,7 +22,7 @@ namespace GtMotive.Estimate.Microservice.ApplicationCore
         public static IServiceCollection AddUseCases(this IServiceCollection services)
         {
             services.AddScoped<IUseCase<CreateVehicleInput>, CreateVehicleUseCase>();
-            services.AddScoped<ListVehiclesUseCase>();
+            services.AddScoped<IUseCase, ListVehiclesUseCase>();
             services.AddScoped<IUseCase<RentVehicleInput>, RentVehicleUseCase>();
             services.AddScoped<IUseCase<ReturnVehicleInput>, ReturnVehicleUseCase>();
 
