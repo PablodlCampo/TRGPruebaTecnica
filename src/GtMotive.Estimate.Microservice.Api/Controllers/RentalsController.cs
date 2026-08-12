@@ -64,7 +64,7 @@ namespace GtMotive.Estimate.Microservice.Api.Controllers
         /// <returns>
         /// The HTTP response containing the created rental.
         /// </returns>
-        [HttpPost("/rent")]
+        [HttpPost]
         [ProducesResponseType(
             typeof(RentVehicleResponse),
             StatusCodes.Status201Created)]

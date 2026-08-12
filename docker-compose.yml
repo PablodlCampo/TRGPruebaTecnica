@@ -10,5 +10,22 @@ services:
     volumes:
       - mongodb_data:/data/db
 
+  api:
+    build:
+      context: .
+      dockerfile: src/GtMotive.Estimate.Microservice.Host/Dockerfile
+    container_name: estimate-api
+    restart: unless-stopped
+    depends_on:
+      - mongodb
+    ports:
+      - "8080:80"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:80
+
+      MongoDb__ConnectionString: mongodb://mongodb:27017
+      MongoDb__MongoDbDatabaseName: estimate
+
 volumes:
   mongodb_data:

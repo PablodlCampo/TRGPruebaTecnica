@@ -5,7 +5,7 @@ WORKDIR /app
 EXPOSE 80
 EXPOSE 443
 
-FROM mcr.microsoft.com/dotnet/sdk:9.0.100-noble-amd64 AS build
+FROM mcr.microsoft.com/dotnet/sdk:9.0.200-noble-amd64 AS build
 ARG PersonalAccessToken
 WORKDIR /src
 COPY Directory.Build.* ./
