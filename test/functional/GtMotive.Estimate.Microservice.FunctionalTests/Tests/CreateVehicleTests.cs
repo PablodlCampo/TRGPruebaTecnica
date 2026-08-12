@@ -56,9 +56,10 @@ namespace GtMotive.Estimate.Microservice.FunctionalTests
                 Assert.Equal(
                     registrationNumber,
                     vehicle.RegistrationNumber);
+
                 Assert.Equal(
-                    manufacturingDate,
-                    vehicle.ManufacturingDate);
+                    manufacturingDate.ToUniversalTime().Ticks / TimeSpan.TicksPerMillisecond,
+                    vehicle.ManufacturingDate.ToUniversalTime().Ticks / TimeSpan.TicksPerMillisecond);
             });
         }
     }
