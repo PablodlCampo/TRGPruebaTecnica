@@ -6,6 +6,7 @@ using GtMotive.Estimate.Microservice.Infrastructure.Logging;
 using GtMotive.Estimate.Microservice.Infrastructure.MongoDb;
 using GtMotive.Estimate.Microservice.Infrastructure.MongoDb.Repositories;
 using GtMotive.Estimate.Microservice.Infrastructure.Telemetry;
+using GtMotive.Estimate.Microservice.Infrastructure.TimeProviders;
 using Microsoft.Extensions.DependencyInjection;
 
 [assembly: CLSCompliant(false)]
@@ -33,6 +34,8 @@ namespace GtMotive.Estimate.Microservice.Infrastructure
             services.AddSingleton<MongoService>();
             services.AddScoped<IVehicleRepository, VehicleRepository>();
             services.AddScoped<IRentalRepository, RentalRepository>();
+            services.AddScoped<IUnitOfWork, MongoUnitOfWork>();
+            services.AddSingleton<IClock, SystemClock>();
 
             return new InfrastructureBuilder(services);
         }

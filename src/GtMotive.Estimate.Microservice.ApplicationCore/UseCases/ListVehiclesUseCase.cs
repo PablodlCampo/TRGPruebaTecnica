@@ -23,7 +23,7 @@ namespace GtMotive.Estimate.Microservice.ApplicationCore.UseCases
     /// </param>
     public class ListVehiclesUseCase(
         IVehicleRepository vehicleRepository,
-        IOutputPortStandard<ListVehiclesOutput> outputPort)
+        IOutputPortStandard<ListVehiclesOutput> outputPort) : IUseCase
     {
         private readonly IVehicleRepository _vehicleRepository = vehicleRepository;
         private readonly IOutputPortStandard<ListVehiclesOutput> _outputPort = outputPort;

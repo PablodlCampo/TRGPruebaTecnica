@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Threading.Tasks;
 using GtMotive.Estimate.Microservice.Api;
 using GtMotive.Estimate.Microservice.Infrastructure;
+using GtMotive.Estimate.Microservice.Infrastructure.MongoDb.Settings;
 using MediatR;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -12,7 +13,7 @@ using Xunit;
 
 namespace GtMotive.Estimate.Microservice.FunctionalTests.Infrastructure
 {
-    internal sealed class CompositionRootTestFixture : IDisposable, IAsyncLifetime
+    public sealed class CompositionRootTestFixture : IDisposable, IAsyncLifetime
     {
         private readonly ServiceProvider _serviceProvider;
 
@@ -25,8 +26,8 @@ namespace GtMotive.Estimate.Microservice.FunctionalTests.Infrastructure
 
             var services = new ServiceCollection();
             Configuration = configuration;
-            ConfigureServices(services);
             services.AddSingleton<IConfiguration>(configuration);
+            ConfigureServices(services, configuration);
             _serviceProvider = services.BuildServiceProvider();
         }
 
@@ -84,13 +85,35 @@ namespace GtMotive.Estimate.Microservice.FunctionalTests.Infrastructure
             await handlerAction.Invoke(handler);
         }
 
+        /// <summary>
+        /// Creates a service scope and executes an action using the scoped service provider.
+        /// </summary>
+        /// <param name="action">
+        /// Action to execute using the scoped service provider.
+        /// </param>
+        /// <returns>
+        /// A task that represents the asynchronous operation.
+        /// </returns>
+        public async Task UsingScope(
+            Func<IServiceProvider, Task> action)
+        {
+            ArgumentNullException.ThrowIfNull(action);
+
+            using var scope = _serviceProvider.CreateScope();
+
+            await action.Invoke(scope.ServiceProvider);
+        }
+
         public void Dispose()
         {
             _serviceProvider.Dispose();
         }
 
-        private static void ConfigureServices(IServiceCollection services)
+        private static void ConfigureServices(IServiceCollection services, IConfiguration configuration)
         {
+            services.Configure<MongoDbSettings>(
+                configuration.GetSection("MongoDb"));
+
             services.AddApiDependencies();
             services.AddLogging();
             services.AddBaseInfrastructure(true);
