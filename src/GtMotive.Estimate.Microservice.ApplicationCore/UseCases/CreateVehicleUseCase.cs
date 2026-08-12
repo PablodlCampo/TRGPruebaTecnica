@@ -73,7 +73,7 @@ namespace GtMotive.Estimate.Microservice.ApplicationCore.UseCases
     /// </param>
     public record CreateVehicleInput(
         string RegistrationNumber,
-        DateTime ManufacturingDate) : IUseCaseInput;
+        DateTime? ManufacturingDate) : IUseCaseInput;
 
     /// <summary>
     /// Represents the output data returned after successfully creating a vehicle.

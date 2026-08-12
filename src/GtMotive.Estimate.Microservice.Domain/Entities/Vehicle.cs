@@ -50,33 +50,31 @@ namespace GtMotive.Estimate.Microservice.Domain.Entities
         /// <param name="manufacturingDate">The manufacturing date of the vehicle.</param>
         /// <param name="currentDate">The current date.</param>
         /// <returns>The created Vehicle instance.</returns>
-        /// <exception cref="ArgumentException">Thrown when id is Guid.Empty, registrationNumber is null/empty/whitespace, or manufacturingDate is in the future.</exception>
         /// <exception cref="DomainException">Thrown when the vehicle is older than the allowed maximum age.</exception>
         public static Vehicle Create(
             Guid id,
             string registrationNumber,
-            DateTime manufacturingDate,
+            DateTime? manufacturingDate,
             DateTime currentDate)
         {
             if (id == Guid.Empty)
             {
-                throw new ArgumentException(
-                    "Vehicle id cannot be empty.",
-                    nameof(id));
+                throw new DomainException("Vehicle id cannot be empty.");
             }
 
             if (string.IsNullOrWhiteSpace(registrationNumber))
             {
-                throw new ArgumentException(
-                    "Registration number is required.",
-                    nameof(registrationNumber));
+                throw new DomainException("Registration number is required.");
+            }
+
+            if (!manufacturingDate.HasValue)
+            {
+                throw new DomainException("Manufacturing date is required.");
             }
 
             if (manufacturingDate > currentDate)
             {
-                throw new ArgumentException(
-                    "Manufacturing date cannot be in the future.",
-                    nameof(manufacturingDate));
+                throw new DomainException("Manufacturing date cannot be in the future.");
             }
 
             if (manufacturingDate < currentDate.AddYears(-MaximumAgeInYears))
@@ -87,7 +85,7 @@ namespace GtMotive.Estimate.Microservice.Domain.Entities
             return new Vehicle(
                 id,
                 registrationNumber,
-                manufacturingDate,
+                manufacturingDate.Value,
                 VehicleStatus.Available);
         }
 

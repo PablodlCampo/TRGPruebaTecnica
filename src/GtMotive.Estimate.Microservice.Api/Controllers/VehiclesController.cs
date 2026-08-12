@@ -20,7 +20,7 @@ namespace GtMotive.Estimate.Microservice.Api.Controllers
 #pragma warning restore S6960 // Controllers should not have mixed responsibilities
     {
         private readonly IUseCase<CreateVehicleInput> _createVehicleUseCase;
-        private readonly ListVehiclesUseCase _listVehiclesUseCase;
+        private readonly IUseCase _listVehiclesUseCase;
         private readonly CreateVehiclePresenter _createVehiclePresenter;
         private readonly ListVehiclesPresenter _listVehiclesPresenter;
 
@@ -44,7 +44,7 @@ namespace GtMotive.Estimate.Microservice.Api.Controllers
         /// </returns>
         public VehiclesController(
             IUseCase<CreateVehicleInput> createVehicleUseCase,
-            ListVehiclesUseCase listVehiclesUseCase,
+            IUseCase listVehiclesUseCase,
             CreateVehiclePresenter createVehiclePresenter,
             ListVehiclesPresenter listVehiclesPresenter)
         {
@@ -77,7 +77,7 @@ namespace GtMotive.Estimate.Microservice.Api.Controllers
             [FromBody] CreateVehicleRequest request)
         {
             ArgumentNullException.ThrowIfNull(request);
-            await _createVehicleUseCase.Execute(new CreateVehicleInput(request.RegistrationNumber, request.ManufacturingDate.Value));
+            await _createVehicleUseCase.Execute(new CreateVehicleInput(request.RegistrationNumber, request.ManufacturingDate));
             return _createVehiclePresenter.ActionResult;
         }
 

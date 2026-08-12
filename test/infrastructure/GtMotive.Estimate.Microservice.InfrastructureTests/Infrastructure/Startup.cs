@@ -40,7 +40,8 @@ namespace GtMotive.Estimate.Microservice.InfrastructureTests.Infrastructure
                 .AddTestServer();
 
             services.AddControllers(ApiConfiguration.ConfigureControllers)
-                .WithApiControllers();
+                .WithApiControllers()
+                .AddNewtonsoftJson();
 
             services.AddBaseInfrastructure(true);
         }

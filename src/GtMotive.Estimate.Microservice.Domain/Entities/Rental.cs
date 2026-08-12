@@ -70,11 +70,14 @@ namespace GtMotive.Estimate.Microservice.Domain.Entities
         /// <param name="customerId">The identifier of the customer.</param>
         /// <param name="rentedAt">The date and time when the rental starts.</param>
         /// <returns>A new active rental.</returns>
-        /// <exception cref="ArgumentException">
-        /// Thrown when any identifier is empty.
+        /// <exception cref="DomainException">
+        /// Thrown when Rental id is empty.
         /// </exception>
-        /// <exception cref="ArgumentOutOfRangeException">
-        /// Thrown when the rental date is invalid.
+        /// <exception cref="DomainException">
+        /// Thrown when Customer id is empty.
+        /// </exception>
+        /// <exception cref="DomainException">
+        /// Thrown when Vehicle id is empty.
         /// </exception>
         public static Rental Create(
             Guid id,
@@ -84,23 +87,17 @@ namespace GtMotive.Estimate.Microservice.Domain.Entities
         {
             if (id == Guid.Empty)
             {
-                throw new ArgumentException(
-                    "Rental id cannot be empty.",
-                    nameof(id));
+                throw new DomainException("Rental id cannot be empty.");
             }
 
             if (customerId == Guid.Empty)
             {
-                throw new ArgumentException(
-                    "Customer id cannot be empty.",
-                    nameof(id));
+                throw new DomainException("Customer id cannot be empty.");
             }
 
             if (vehicleId == Guid.Empty)
             {
-                throw new ArgumentException(
-                    "Vehicle id cannot be empty.",
-                    nameof(vehicleId));
+                throw new DomainException("Vehicle id cannot be empty.");
             }
 
             return new Rental(
@@ -150,7 +147,7 @@ namespace GtMotive.Estimate.Microservice.Domain.Entities
         /// <exception cref="DomainException">
         /// Thrown when the rental has already been returned.
         /// </exception>
-        /// <exception cref="ArgumentOutOfRangeException">
+        /// <exception cref="DomainException">
         /// Thrown when the return date is earlier than the rental date.
         /// </exception>
         public void Return(DateTime returnedAt)
@@ -162,9 +159,7 @@ namespace GtMotive.Estimate.Microservice.Domain.Entities
 
             if (returnedAt < RentedAt)
             {
-                throw new ArgumentOutOfRangeException(
-                    nameof(returnedAt),
-                    "Return date cannot be earlier than the rental date.");
+                throw new DomainException("Return date cannot be earlier than the rental date.");
             }
 
             ReturnedAt = returnedAt;
