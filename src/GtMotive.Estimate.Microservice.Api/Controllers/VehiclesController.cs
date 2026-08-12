@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using System.Threading.Tasks;
 using GtMotive.Estimate.Microservice.Api.Models;
 using GtMotive.Estimate.Microservice.Api.Presenters;
@@ -95,17 +94,7 @@ namespace GtMotive.Estimate.Microservice.Api.Controllers
         {
             await _listVehiclesUseCase.Execute();
 
-            var output = _listVehiclesPresenter.Response;
-
-            var response = new ListVehiclesResponse(
-                [.. output.Vehicles
-                    .Select(vehicle => new VehicleResponse(
-                        vehicle.Id,
-                        vehicle.RegistrationNumber,
-                        vehicle.ManufacturingDate,
-                        vehicle.Status))]);
-
-            return Ok(response);
+            return _listVehiclesPresenter.ActionResult;
         }
     }
 }
