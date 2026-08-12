@@ -4,9 +4,7 @@ using System.Reflection;
 using GtMotive.Estimate.Microservice.Api.Authorization;
 using GtMotive.Estimate.Microservice.Api.DependencyInjection;
 using GtMotive.Estimate.Microservice.Api.Filters;
-using GtMotive.Estimate.Microservice.Api.OutputPorts;
 using GtMotive.Estimate.Microservice.ApplicationCore;
-using GtMotive.Estimate.Microservice.ApplicationCore.UseCases.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -41,14 +39,6 @@ namespace GtMotive.Estimate.Microservice.Api
             services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(ApiConfiguration).GetTypeInfo().Assembly));
             services.AddUseCases();
             services.AddPresenters();
-            services.AddPorts();
-        }
-
-        public static void AddPorts(this IServiceCollection services)
-        {
-            services.AddScoped(
-                typeof(IOutputPortStandard<>),
-                typeof(OutputPort<>));
         }
     }
 }

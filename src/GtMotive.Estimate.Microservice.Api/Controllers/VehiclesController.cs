@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using GtMotive.Estimate.Microservice.Api.Models;
+using GtMotive.Estimate.Microservice.Api.Presenters;
 using GtMotive.Estimate.Microservice.ApplicationCore.UseCases;
 using GtMotive.Estimate.Microservice.ApplicationCore.UseCases.Interfaces;
 using Microsoft.AspNetCore.Http;
@@ -20,8 +21,8 @@ namespace GtMotive.Estimate.Microservice.Api.Controllers
     {
         private readonly IUseCase<CreateVehicleInput> _createVehicleUseCase;
         private readonly ListVehiclesUseCase _listVehiclesUseCase;
-        private readonly IOutputPortStandard<CreateVehicleOutput> _createVehicleOutputPort;
-        private readonly IOutputPortStandard<ListVehiclesOutput> _listVehiclesOutputPort;
+        private readonly CreateVehiclePresenter _createVehiclePresenter;
+        private readonly ListVehiclesPresenter _listVehiclesPresenter;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="VehiclesController"/> class.
@@ -32,27 +33,30 @@ namespace GtMotive.Estimate.Microservice.Api.Controllers
         /// <param name="listVehiclesUseCase">
         /// Use case responsible for retrieving available vehicles.
         /// </param>
-        /// <param name="createVehicleOutputPort">
-        /// Output port used to retrieve the vehicle creation result.
+        /// <param name="createVehiclePresenter">
+        /// Presenter used to format the API responses.
         /// </param>
-        /// <param name="listVehiclesOutputPort">
-        /// Output port used to retrieve the vehicle listing result.
+        /// <param name="listVehiclesPresenter">
+        /// Presenter used to format the API responses for listing vehicles.
         /// </param>
+        /// <returns>
+        /// A new instance of the <see cref="VehiclesController"/> class.
+        /// </returns>
         public VehiclesController(
             IUseCase<CreateVehicleInput> createVehicleUseCase,
             ListVehiclesUseCase listVehiclesUseCase,
-            IOutputPortStandard<CreateVehicleOutput> createVehicleOutputPort,
-            IOutputPortStandard<ListVehiclesOutput> listVehiclesOutputPort)
+            CreateVehiclePresenter createVehiclePresenter,
+            ListVehiclesPresenter listVehiclesPresenter)
         {
             ArgumentNullException.ThrowIfNull(createVehicleUseCase);
             ArgumentNullException.ThrowIfNull(listVehiclesUseCase);
-            ArgumentNullException.ThrowIfNull(createVehicleOutputPort);
-            ArgumentNullException.ThrowIfNull(listVehiclesOutputPort);
+            ArgumentNullException.ThrowIfNull(createVehiclePresenter);
+            ArgumentNullException.ThrowIfNull(listVehiclesPresenter);
 
             _createVehicleUseCase = createVehicleUseCase;
             _listVehiclesUseCase = listVehiclesUseCase;
-            _createVehicleOutputPort = createVehicleOutputPort;
-            _listVehiclesOutputPort = listVehiclesOutputPort;
+            _createVehiclePresenter = createVehiclePresenter;
+            _listVehiclesPresenter = listVehiclesPresenter;
         }
 
         /// <summary>
@@ -73,21 +77,8 @@ namespace GtMotive.Estimate.Microservice.Api.Controllers
             [FromBody] CreateVehicleRequest request)
         {
             ArgumentNullException.ThrowIfNull(request);
-
-            await _createVehicleUseCase.Execute(
-                new CreateVehicleInput(
-                    request.RegistrationNumber,
-                    request.ManufacturingDate.Value));
-
-            var output = _createVehicleOutputPort.Response;
-
-            var response = new CreateVehicleResponse(
-                output.VehicleId,
-                output.RegistrationNumber);
-
-            return Created(
-                new Uri($"/vehicles/{response.VehicleId}", UriKind.Relative),
-                response);
+            await _createVehicleUseCase.Execute(new CreateVehicleInput(request.RegistrationNumber, request.ManufacturingDate.Value));
+            return _createVehiclePresenter.ActionResult;
         }
 
         /// <summary>
@@ -104,7 +95,7 @@ namespace GtMotive.Estimate.Microservice.Api.Controllers
         {
             await _listVehiclesUseCase.Execute();
 
-            var output = _listVehiclesOutputPort.Response;
+            var output = _listVehiclesPresenter.Response;
 
             var response = new ListVehiclesResponse(
                 [.. output.Vehicles
