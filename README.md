@@ -27,7 +27,7 @@
 ### [Separation of Concerns](#separation-of-concerns)
 - [Domain](#domain)
 - [Application](#application)
-- [Infrastructure](#infrastructure)
+- [Infrastructure](#infrastructure)A
 - [User interface](#user-interface)
 ### [.NET Core Web API](#net-core-web-api)
 - [Swagger](#swagger)
@@ -706,3 +706,7 @@ The infrastructure layer is responsible to implement the **Adapters** to the **S
 ### User Interface
 Responsible for rendering the Graphical User Interface (GUI) to interact with the User or other systems. Made of **Controllers** which receive HTTP Requests and **Presenters** which converts the application outputs into **ViewModels** that are rendered as HTTP Responses. 
 
+# How to run project
+1.install docker
+2.docker compose up --build
+3.http://localhost:8080/swagger/index.html
