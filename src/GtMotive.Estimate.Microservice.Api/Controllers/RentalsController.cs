@@ -89,7 +89,7 @@ namespace GtMotive.Estimate.Microservice.Api.Controllers
         /// <returns>
         /// The HTTP response containing the completed rental information.
         /// </returns>
-        [HttpPost("{rentalId:guid}/return")]
+        [HttpPost("{rentalId:guid}/returns")]
         [ProducesResponseType(
             typeof(ReturnVehicleResponse),
             StatusCodes.Status200OK)]
