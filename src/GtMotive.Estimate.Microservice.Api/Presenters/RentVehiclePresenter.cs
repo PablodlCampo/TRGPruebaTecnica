@@ -41,7 +41,9 @@ namespace GtMotive.Estimate.Microservice.Api.Presenters
                 response.VehicleId,
                 response.CustomerId);
 
-            ActionResult = new OkObjectResult(apiResponse);
+            ActionResult = new CreatedResult(
+                $"/rentals/{response.RentalId}",
+                apiResponse);
         }
     }
 }
