@@ -14,9 +14,7 @@ namespace GtMotive.Estimate.Microservice.Api.Controllers
     /// </summary>
     [ApiController]
     [Route("vehicles")]
-#pragma warning disable S6960 // Controllers should not have mixed responsibilities
     public sealed class VehiclesController : ControllerBase
-#pragma warning restore S6960 // Controllers should not have mixed responsibilities
     {
         private readonly IUseCase<CreateVehicleInput> _createVehicleUseCase;
         private readonly IUseCase _listVehiclesUseCase;
