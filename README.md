@@ -710,3 +710,16 @@ Responsible for rendering the Graphical User Interface (GUI) to interact with th
 - install docker
 - docker compose up --build
 - http://localhost:8080/swagger/index.html
+
+# How to use kubernetes
+- create development and service.yaml on k8s
+- kubectl config get-contexts elegir el contexto
+- kubectl config use-context docker-desktop
+- kubectl apply -f k8s/ applicar la configuracion que hemos creado
+- kubectl get pods -w obtener los pods o instancias de mi aplicacion que se ejecutan en los contenedores(ejecucion real)
+- kubectl get deployment muestra el estado de la aplicacion(intencion)
+
+
+- kubectl delete pod  borrar un pod(deploy creara otro si tenemos configurados 2)
+- kubectl get services obtener sevicios activos
+- kubectl port-forward service/estimate-api 8081:80 (puerto 8081 de mi maquina y 80 de kubernetes)
