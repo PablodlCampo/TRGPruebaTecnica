@@ -1,4 +1,5 @@
 ﻿using System;
+using GtMotive.Estimate.Microservice.Domain;
 using GtMotive.Estimate.Microservice.Domain.Entities;
 using Xunit;
 
@@ -63,7 +64,7 @@ namespace GtMotive.Estimate.Microservice.UnitTests.ApplicationCore
 
             var rental = Rental.Create(id, vehicleId, customerId, rentedAt);
 
-            Assert.Throws<ArgumentOutOfRangeException>(() => rental.Return(returnedAt));
+            Assert.Throws<DomainException>(() => rental.Return(returnedAt));
         }
     }
 }
