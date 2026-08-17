@@ -1,4 +1,5 @@
 ﻿using System;
+using GtMotive.Estimate.Microservice.Domain;
 using GtMotive.Estimate.Microservice.Domain.Entities;
 using GtMotive.Estimate.Microservice.Domain.Enums;
 using Xunit;
@@ -40,7 +41,7 @@ namespace GtMotive.Estimate.Microservice.UnitTests.ApplicationCore
             var registration = "1234-ABC";
             var future = Now.AddDays(1);
 
-            Assert.Throws<ArgumentException>(() =>
+            Assert.Throws<DomainException>(() =>
                 Vehicle.Create(id, registration, future, Now));
         }
 
